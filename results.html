@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <title>Search Results</title>
+    <style>
+    .submitLink{
+    	background-color: transparent;
+    	border: none;
+    	font-size: 25px;
+    }
+	</style>
+</head>
+  
+<body>
+	<nav class="navbar navbar-expand-lg bg-light" id="header" th:fragment="header" height= "50px">
+		<a class="navbar-brand" href="foodlergy.html"><img src="logo.png" height="50px"></a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">User</a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" th:href="#">Profile</a>
+                            <a class="dropdown-item" th:href="@{/logout}">My Reviews</a>
+                            <a class="dropdown-item" th:href="#">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+	
+    <div class="column" id="pos">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-5 mb-1 text-muted">Filters</h6>
+            <ul class="nav flex-column mb-2">
+              <li class="nav-item px-3">
+				<fieldset class="form-group" id="sort">
+					<div class="row">
+						<div class="col-sm-10">
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="sort" id="reviews" value="1" onchange="handleChange()">
+							<label class="form-check-label" for="reviews">
+								Most Reviews
+							</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="sort" id="rating" value="2" onchange="handleChange()" checked>
+							<label class="form-check-label" for="rating">
+								Highest Rated
+							</label>
+						</div>
+						</div>
+					</div>
+				</fieldset>
+			</li>
+		</ul>
+		<h7 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-5 mb-1 text-muted">Allergies</h7>
+		<ul class="nav flex-column mb-2">
+			<li class="nav-item px-3">
+				<fieldset class="form-group" id="allergies">
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel">Peanuts</label></input>
+					</div>
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel"> Tree Nuts</label></input>
+					</div>
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel"> Dairy</label></input>
+					</div>
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel"> Wheat</label></input>
+					</div>
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel"> Shellfish</label></input>
+					</div>
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel"> Soy</label></input>
+					</div>
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel"> Fish</label></input>
+					</div>
+					<div class="row col-sm-10">
+						<input type="checkbox"><label id = "allergyLabel"> Eggs</label></input>
+					</div>
+				</fieldset>
+			</li>
+		</ul>
+	</div>
+</nav>
+<div class="col ml-sm-auto col-lg-10 pt-5 px-4">
+    <h2>Search Results</h2>
+    <hr>
+    <?php
+	require_once("config.php");
+	try{
+		$connString = "mysql:host=" . DBHOST . ";dbname=" . DBNAME;
+		$user = DBUSER;
+		$pass = DBPASS;
+		$count = 0;
+
+		$pdo = new PDO($connString, $user, $pass);
+
+		$name = $_POST["Type"];
+		$keyword = $_POST["Keyword"];
+		$location = $_POST["Location"];
+		
+		$sql = "SELECT * FROM Restaurant WHERE ";
+
+		if ($location != ""){
+			if ($count == 0){
+				$sql = $sql."Restaurant.City like '%$location%' ";
+				$count++;
+			}
+			else{
+				$sql = $sql."AND Restaurant.City like '%$location%' ";
+				$count++;
+			}
+		}
+
+		if ($name != ""){
+			if ($count == 0){
+				$sql = $sql."Restaurant.Name like '%$ name%' ";
+				$count++;
+			}
+			else{
+				$sql = $sql."AND Restaurant.Name like '%$name%' ";
+				$count++;
+			}
+		}
+
+		if ($keyword != ""){
+			if ($count == 0){
+				$sql = $sql."Restaurant.Tags like '%$keyword%' ";
+				$count++;
+			}
+			else{
+				$sql = $sql."AND Restaurant.Tags like '%$keyword%' ";
+				$count++;
+			}
+		}
+
+		$sql = $sql.";";
+
+		$result = $pdo->query($sql);
+
+		while ($row=$result->fetch()){
+
+			$sql2 = "SELECT COUNT(Review.AllergyStars), SUM(Review.AllergyStars) FROM Review INNER JOIN Restaurant ON Review.RestaurantID = Restaurant.ID WHERE Restaurant.Name like '%$row[1]%'";
+
+			$result2 = $pdo->query($sql2);
+
+			$row2 = $result2->fetch();
+
+			echo "<strong class=\"d-block text-gray-dark\"><a href='reviews.php?restaurant=".$row[1]."'>".$row[1]."</a></strong>";
+			$numOfStars = $row2[1]/$row2[0];
+			$stars = "";
+		  	for($i = 0; $i<$numOfStars; $i++){
+		  		$stars = $stars."&#9733";
+		  	}
+		  	echo "Average Rating: ".$stars."<br>";
+			echo "<p>".$row[4].", ".$row[5]."</p>";
+			echo "<p>Tags: ".$row[8]."</p>";
+			echo "<p>Allergens: ".$row[9]."</p>";
+			echo "<hr>";
+		}
+
+		$pdo = null;
+
+		//header('Location: results.php');
+	}
+	catch(PDOException $e){
+		print "Error!: ".$e->getMessage()."<br/>";
+		die();
+	}
+?>
+		  
+ </div>
+</div>
+</div>
+</body>
+</html>
